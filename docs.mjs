@@ -5,7 +5,8 @@ const docs = {
         let db = await openDb();
 
         try {
-            return await db.all('SELECT rowid as id, * FROM documents');
+            let response = await db.all('SELECT rowid as id, * FROM documents');
+            return response;
         } catch (e) {
             console.error(e);
 
@@ -19,7 +20,7 @@ const docs = {
         let db = await openDb();
 
         try {
-            return await db.get('SELECT * FROM documents WHERE rowid=?', id);
+            return await db.get('SELECT rowid as id, * FROM documents WHERE rowid=?', id);
         } catch (e) {
             console.error(e);
 
@@ -43,7 +44,24 @@ const docs = {
         } finally {
             await db.close();
         }
-    }
+    },
+
+    updateOne: async function updateOne(body) {
+        let db = await openDb();
+
+        try {
+            return await db.run(
+                'UPDATE documents set content=?  WHERE rowid=?',
+                body.content,
+                body.id
+            );
+        } catch (e) {
+            console.error(e);
+        } finally {
+            await db.close();
+        }
+    },
+
 };
 
 export default docs;
