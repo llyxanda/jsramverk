@@ -51,7 +51,8 @@ const docs = {
 
         try {
             return await db.run(
-                'UPDATE documents set content=?  WHERE rowid=?',
+                'UPDATE documents set title=?, content=?  WHERE rowid=?',
+                body.title,
                 body.content,
                 body.id
             );
