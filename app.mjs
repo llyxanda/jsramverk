@@ -34,11 +34,37 @@ app.post("/", async (req, res) => {
 });
 
 app.get('/:id', async (req, res) => {
+    const response = await documents.getOne(req.params.id);
+    console.log('response', response)
     return res.render(
         "doc",
-        { doc: await documents.getOne(req.params.id) }
+        { doc: response}
     );
 });
+
+
+app.post('/:id', async (req, res) => {
+    const { id } = req.params; // Extract the ID from the route parameters
+    const { title, content } = req.body; // Extract title and content from the form data
+
+    const body = {
+        id:parseInt( id),
+        title:title,
+        content:content
+    };
+    console.log('body', body)
+
+    try {
+        // Update the document in the database
+        const response = await documents.updateOne(body);
+        console.log('Updated response', response)
+        res.redirect(`/${body.id}`);
+    } catch (e) {
+        console.error('Error updating document:', e);
+        res.status(500).send('Error updating document');
+    }
+});
+
 
 app.get('/', async (req, res) => {
     return res.render("index", { docs: await documents.getAll() });
