@@ -5,11 +5,9 @@ const docs = {
         let db = await openDb();
 
         try {
-            let response = await db.all('SELECT rowid as id, * FROM documents');
-            return response;
+            return await db.all('SELECT rowid as id, * FROM documents');
         } catch (e) {
             console.error(e);
-
             return [];
         } finally {
             await db.close();
@@ -23,8 +21,7 @@ const docs = {
             return await db.get('SELECT rowid as id, * FROM documents WHERE rowid=?', id);
         } catch (e) {
             console.error(e);
-
-            return {};
+            return null;
         } finally {
             await db.close();
         }
@@ -37,7 +34,7 @@ const docs = {
             return await db.run(
                 'INSERT INTO documents (title, content) VALUES (?, ?)',
                 body.title,
-                body.content,
+                body.content
             );
         } catch (e) {
             console.error(e);
@@ -51,7 +48,8 @@ const docs = {
 
         try {
             return await db.run(
-                'UPDATE documents set content=?  WHERE rowid=?',
+                'UPDATE documents SET title = ?, content = ? WHERE rowid = ?',
+                body.title,
                 body.content,
                 body.id
             );
@@ -60,8 +58,7 @@ const docs = {
         } finally {
             await db.close();
         }
-    },
-
+    }
 };
 
 export default docs;

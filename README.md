@@ -8,3 +8,11 @@ Starter project for DV1677 JSRamverk
 4. Updated the docs.mjs with a function updateOne that updates a row in the database
 5. Updated the app.msj with a post route for /:id
 6. Debuged, had to parse the req param id as Int and had to add the rowid in the select query for getting a row
+
+Frontend Framework: React
+Why React?
+- Component-Based Architecture
+- Virtual DOM
+- Rich Ecosystem
+- Modern JavaScript
+- Strong Community
