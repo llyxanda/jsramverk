@@ -2,7 +2,7 @@
   "name": "ssr-editor",
   "version": "1.0.0",
   "description": "Starter project for DV1677 JSRamverk",
-  "main": "index.js",
+  "main": "app.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
