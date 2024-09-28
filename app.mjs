@@ -20,6 +20,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/posts", posts );
 
+app.get("/", (req, res) => res.send('Hej!') )
 
 if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('combined'));
