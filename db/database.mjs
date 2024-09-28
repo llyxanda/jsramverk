@@ -1,19 +1,32 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import 'dotenv/config';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 
 
-async function openDb() {
-    let dbFilename = `./db/docs.sqlite`;
 
-    if (process.env.NODE_ENV === 'test') {
-        dbFilename = "./db/test.sqlite";
-    }
+const database = {
+  getDb: async function getDb (collectionName) {
+      let dsn = `mongodb+srv://texteditor:${process.env.DB_PASS}@cluster0.phcvr.mongodb.net/
+                ?retryWrites=true&w=majority&appName=Cluster0`;
 
-    return await open({
-        filename: dbFilename,
-        driver: sqlite3.Database
-    });
-}
+      if (process.env.NODE_ENV === 'test') {
+          dsn = "mongodb://localhost:27017/test";
+      }
 
+      const client = new MongoClient(dsn, {
+        serverApi: {
+          version: ServerApiVersion.v1,
+          strict: true,
+          deprecationErrors: true,
+        }
+      });
+      const db = await client.db();
+      const collection = await db.collection(collectionName);
 
-export default openDb;
+      return {
+          collection: collection,
+          client: client,
+      };
+  }
+};
+
+export default database;

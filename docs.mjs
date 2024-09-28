@@ -1,68 +1,71 @@
-import openDb from './db/database.mjs';
 
+import database from './db/database.mjs';
+import { ObjectId } from 'mongodb';
 const docs = {
-    getAll: async function getAll() {
-        let db = await openDb();
+    getAll: async function getAll(datab) {
+        let db = await database.getDb(datab);
 
         try {
-            let response = await db.all('SELECT rowid as id, * FROM documents');
-            return response;
+            //console.log(db);
+            return await db.collection.find().toArray();
+ 
+            //return await db.all('SELECT rowid as id, * FROM documents');
         } catch (e) {
-            console.error(e);
-
+            console.error(e, e.message);
             return [];
         } finally {
-            await db.close();
+            await db.client.close();
         }
     },
 
-    getOne: async function getOne(id) {
-        let db = await openDb();
-
+    getOne: async function getOne(datab, id) {
+        let db = await database.getDb(datab);
+        const objectId = new ObjectId(id);
+    
         try {
-            return await db.get('SELECT rowid as id, * FROM documents WHERE rowid=?', id);
+            return await db.collection.findOne({ _id: objectId });
         } catch (e) {
             console.error(e);
-
-            return {};
+            return null;
         } finally {
-            await db.close();
+            await db.client.close();
         }
     },
 
-    addOne: async function addOne(body) {
-        let db = await openDb();
-
+    addOne: async function addOne(datab, body) {
+        let db = await database.getDb(datab);
+    
         try {
-            return await db.run(
-                'INSERT INTO documents (title, content) VALUES (?, ?)',
-                body.title,
-                body.content,
+            const result = await db.collection.insertOne({
+                title: body.title,
+                content: body.content,
+                created_at: new Date()
+            });
+            return result;
+        } catch (e) {
+            console.error(e, e.message);
+        } finally {
+            await db.client.close();
+        }
+    },
+   
+
+    updateOne: async function updateOne(datab, body) {
+        let db = await database.getDb(datab);
+    
+        try {
+            const objectId = new ObjectId(body.id);
+            const result = await db.collection.updateOne(
+                { _id: objectId },
+                { $set: { title: body.title, content: body.content } }
             );
+            return result;
         } catch (e) {
             console.error(e);
         } finally {
-            await db.close();
+            await db.client.close();
         }
-    },
-
-    updateOne: async function updateOne(body) {
-        let db = await openDb();
-
-        try {
-            return await db.run(
-                'UPDATE documents set title=?, content=?  WHERE rowid=?',
-                body.title,
-                body.content,
-                body.id
-            );
-        } catch (e) {
-            console.error(e);
-        } finally {
-            await db.close();
-        }
-    },
-
+    }
 };
 
 export default docs;
