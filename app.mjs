@@ -10,7 +10,7 @@ import docs from './docs.mjs'
 
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 8080;
 
 app.disable('x-powered-by');
 app.set("view engine", "ejs");
