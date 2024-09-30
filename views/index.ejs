@@ -1,8 +1,9 @@
 <%- include('includes/header'); %>
-    <h2>Dokument</h2>
-    <% docs.forEach(function(doc){ %>
-        <h3><a href="/<%= doc.id %>" class="doc"><%= doc.title %></a></h3>
-    <% }); %>
-    <a href="/new"  class="button">Skapa nytt dokument</a>
+    <h1><%= title %></h1>
+    <ul>
+        <% routes.forEach(route => { %>
+            <li><strong><%= route.method %></strong> <%= route.path %> - <%= route.description %></li>
+        <% }) %>
+    </ul>
 
 <%- include('includes/footer'); %>
