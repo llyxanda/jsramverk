@@ -20,7 +20,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/posts", posts );
 
-app.get("/", (req, res) => res.send('Hej!') )
+
+app.get("/", (req, res) => {
+    res.render('index', { title: 'API Documentation', routes: [
+        { method: 'GET', path: '/', description: 'API Documentation' },
+        { method: 'GET', path: '/posts', description: 'Get all documents' },
+        { method: 'GET', path: '/posts/new', description: 'Form to create a new document' },
+        { method: 'POST', path: '/posts/new', description: 'POST route to create a new document' },
+        { method: 'GET', path: '/posts/:id', description: 'Get a document by ID' },
+        { method: 'GET', path: '/posts/update/:id', description: 'Form to update a document' },
+        { method: 'POST', path: '/posts/:id', description: 'POST route to update a document by ID' }
+    ] });
+});
 
 if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('combined'));
