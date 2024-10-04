@@ -27,6 +27,7 @@ const docs = {
         } catch (e) {
             console.error(e);
             return null;
+            return null;
         } finally {
             await db.client.close();
         }
@@ -65,6 +66,7 @@ const docs = {
         } finally {
             await db.client.close();
         }
+    }
     }
 };
 
