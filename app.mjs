@@ -38,6 +38,8 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`App listening on port ${port}`);
 });
+
+export default server;

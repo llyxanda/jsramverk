@@ -3,20 +3,31 @@
   "version": "1.0.0",
   "description": "Starter project for DV1677 JSRamverk",
   "main": "app.mjs",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.7",
+    "body-parser": "^2.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^5.0.0",
+    "mocha": "^10.7.3",
     "mongodb": "^6.9.0",
+    "mongoose": "^8.7.0",
     "morgan": "^1.10.0",
+    "node-html-parser": "^6.1.13",
     "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "chai": "^5.1.1",
+    "chai-http": "^5.0.0",
+    "mocha": "^10.7.3",
+    "node-html-parser": "^6.1.13"
   }
 }
