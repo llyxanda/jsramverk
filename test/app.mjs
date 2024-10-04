@@ -183,7 +183,7 @@ describe('app', () => {
                     res.body.should.be.an('object');
                     res.body.should.have.property('title').eql('Updated Test Document');
                     res.body.should.have.property('content').eql('Updated content for document.');
-                    done();
+                    //done();
                 });
         });
     });
