@@ -67,7 +67,6 @@ const docs = {
             await db.client.close();
         }
     }
-    }
-};
+    };
 
 export default docs;
