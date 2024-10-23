@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import 'dotenv/config';
 import express from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
@@ -18,7 +17,9 @@ app.set("view engine", "ejs");
 app.use(express.static(path.join(process.cwd(), "public")));
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use("/posts", posts );
 
 
@@ -30,7 +31,8 @@ app.get("/", (req, res) => {
         { method: 'POST', path: '/posts/new', description: 'POST route to create a new document' },
         { method: 'GET', path: '/posts/:id', description: 'Get a document by ID' },
         { method: 'GET', path: '/posts/update/:id', description: 'Form to update a document' },
-        { method: 'POST', path: '/posts/:id', description: 'POST route to update a document by ID' }
+        { method: 'POST', path: '/posts/:id', description: 'POST route to update a document by ID' },
+        { method: 'POST', path: '/posts/mail/send-invite', description: 'POST route send an invitation email' }
     ] });
 });
 
