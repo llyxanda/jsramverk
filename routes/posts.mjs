@@ -1,9 +1,10 @@
 import express from "express";
+import sendInvitationEmail from '../sendmail.mjs';
 import documents from "../docs.mjs";
 
 const router = express.Router();
 
-
+router.use(express.json());
 
 router.get('/', async (req, res) => {
     try {
@@ -77,5 +78,22 @@ router.post('/:id', async (req, res) => {
     }
 });
 
+
+
+router.post('/mail/send-invite', async (req, res) => {
+    const { email, documentUrl } = req.body;
+
+    if (!email || !documentUrl) {
+        return res.status(400).json({ error: 'Email and Document URL are required' });
+    }
+
+    try {
+        const emailResponse = await sendInvitationEmail(email, documentUrl); // Await the email sending
+        return res.status(200).json(emailResponse); // Return the response from the email sending function
+    } catch (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ error: error.message }); // Return error message
+    }
+});
 
 export default router;
