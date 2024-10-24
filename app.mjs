@@ -6,7 +6,7 @@ import morgan from 'morgan';
 import posts from './routes/posts.mjs'
 import cors from 'cors';
 //import './db/database.mjs'
-import docs from './docs.mjs'
+import docs from './datamodels/docs.mjs'
 
 
 const app = express();
@@ -32,7 +32,9 @@ app.get("/", (req, res) => {
         { method: 'GET', path: '/posts/:id', description: 'Get a document by ID' },
         { method: 'GET', path: '/posts/update/:id', description: 'Form to update a document' },
         { method: 'POST', path: '/posts/:id', description: 'POST route to update a document by ID' },
-        { method: 'POST', path: '/posts/mail/send-invite', description: 'POST route send an invitation email' }
+        { method: 'POST', path: '/posts/mail/send-invite', description: 'POST route send an invitation email' },
+        { method: 'POST', path: '/posts/users/register', description: 'POST route to register a new user' },
+        { method: 'POST', path: '/posts/users/login', description: 'POST route to log in' },
     ] });
 });
 

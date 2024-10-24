@@ -9,14 +9,16 @@ import chaiHttp from 'chai-http'
 import server from '../app.mjs';
 import HTMLParser from 'node-html-parser'
 import database from '../db/database.mjs';
-import documents from "../docs.mjs";
+import documents from "../datamodels/docs.mjs";
 
-const collectionName = 'documents'; 
 
 
 const chai = use(chaiHttp);
 chai.should();
+const collectionName = 'documents'; 
 
+
+// Documents db tests
 describe('app', () => {
     describe('GET /', () => {
         it('200 HAPPY PATH getting base', (done) => {
@@ -66,7 +68,6 @@ describe('app', () => {
                 if (info) {
                     // Drop the collection if it exists
                     await db.db.collection(collectionName).drop();
-                    console.log(`Collection ${collectionName} dropped.`);
                 }
             } catch (err) {
                 console.error('Error during collection drop:', err);
@@ -92,8 +93,9 @@ describe('app', () => {
                     done();
                 });
             });
+    });
 
-        describe('GET /posts/:id', async () => {
+    describe('GET /posts/:id', async () => {
                  let newDocumentId;
             
                 // Hook to add a document to the database before the GET test
@@ -132,60 +134,167 @@ describe('app', () => {
                     //done();
                 });
             });
-    });
-
 
     describe('Document update POST/:id', () => {
-        let newDocumentId;
+                let newDocumentId;
+        
+                // Hook to add a new document before running the tests
+                before(async () => {
+                    const newDocument = {
+                        title: 'Test Document for update 1',
+                        content: 'Test document for update content.'
+                    };
+        
+                    try {
+                        const insertedDocument = await documents.addOne('documents', newDocument);
+                        newDocumentId = insertedDocument.insertedId;
+                        console.log(`Inserted document with ID: ${newDocumentId}`);
+                    } catch (err) {
+                        console.error('Error inserting document:', err);
+                    }
+                });
+        
+                // Test for modifying the document
+                it('should modify the document via POST /posts/:id', async function() {
+                    const updatedDocument = {
+                        title: 'Updated Test Document',
+                        content: 'Updated content for document.'
+                    };
+        
+                    chai.request.execute(server)
+                        .post(`/posts/${newDocumentId}`)
+                        .send(updatedDocument)
+                        .end(async (err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.have.property('success').eql(true);
+        
+                            const modifiedDocument = await documents.getOne('documents', newDocumentId);
+                            modifiedDocument.should.include(updatedDocument);
+                            done();
+                        });
+                });
+        
+                // Test for fetching the modified document via GET
+                it('should fetch the modified document by ID via GET /posts/:id', async function() {
+                    chai.request.execute(server)
+                        .get(`/posts/${newDocumentId}`)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.be.an('object');
+                            res.body.should.have.property('title').eql('Updated Test Document');
+                            res.body.should.have.property('content').eql('Updated content for document.');
+                            //done();
+                        });
+                });
+            });
+});
 
-        // Hook to add a new document before running the tests
-        before(async () => {
-            const newDocument = {
-                title: 'Test Document for update 1',
-                content: 'Test document for update content.'
-            };
 
-            try {
-                const insertedDocument = await documents.addOne('documents', newDocument);
-                newDocumentId = insertedDocument.insertedId;
-                console.log(`Inserted document with ID: ${newDocumentId}`);
-            } catch (err) {
-                console.error('Error inserting document:', err);
+// Users db tests
+describe('Auth API', () => {
+
+    before(async () => {
+        const db = await database.getDb('users');
+        try {
+            // Check if the collection exists and drop it
+            const info = await db.db.listCollections({ name: 'users' }).next();
+            if (info) {
+                await db.db.collection('users').drop();
+                //console.log(`Collection ${'users'} dropped.`);
             }
-        });
+        } catch (err) {
+            console.error('Error during collection drop:', err);
+        } finally {
+            await db.client.close();
+        }
+    });
 
-        // Test for modifying the document
-        it('should modify the document via POST /posts/:id', async function() {
-            const updatedDocument = {
-                title: 'Updated Test Document',
-                content: 'Updated content for document.'
+    describe('POST /user/register', () => {
+        it('should register a new user successfully', (done) => {
+            const newUser = {
+                email: 'testuser1@example.com',
+                password: 'testpassword1'
             };
 
             chai.request.execute(server)
-                .post(`/posts/${newDocumentId}`)
-                .send(updatedDocument)
-                .end(async (err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.have.property('success').eql(true);
-
-                    const modifiedDocument = await documents.getOne('documents', newDocumentId);
-                    modifiedDocument.should.include(updatedDocument);
+                .post('/posts/user/register')
+                .send(newUser)
+                .end((err, res) => {
+                    res.should.have.status(201);
+                    res.body.should.have.property('data');
+                    res.body.data.should.have.property('message').eql('User successfully registered.');
                     done();
                 });
         });
 
-        // Test for fetching the modified document via GET
-        it('should fetch the modified document by ID via GET /posts/:id', async function() {
+        it('should return 401 if email or password is missing', (done) => {
+            const newUser = {
+                email: '',
+                password: 'testpassword'
+            };
+
             chai.request.execute(server)
-                .get(`/posts/${newDocumentId}`)
+                .post('/posts/user/register')
+                .send(newUser)
                 .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.an('object');
-                    res.body.should.have.property('title').eql('Updated Test Document');
-                    res.body.should.have.property('content').eql('Updated content for document.');
-                    //done();
+                    res.should.have.status(401);
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('title').eql('Email or password missing');
+                    done();
+                });
+        });
+
+        it('should return 409 if the user already exists', (done) => {
+            const newUser = {
+                email: 'testuser1@example.com',
+                password: 'testpassword1'
+            };
+
+            chai.request.execute(server)
+                .post('/posts/user/register')
+                .send(newUser)
+                .end((err, res) => {
+                    res.should.have.status(409);
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('title').eql('Email already registered');
+                    done();
                 });
         });
     });
 
+describe('POST /user/login', () => {
+        it('should log in the user successfully', (done) => {
+            const userCredentials = {
+                email: 'testuser1@example.com',
+                password: 'testpassword1'
+            };
+
+            chai.request.execute(server)
+                .post('/posts/user/login')
+                .send(userCredentials)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.have.property('data');
+                    res.body.data.should.have.property('message').eql('User logged in');
+                    done();
+                });
+        });
+
+        it('should return 401 if password is incorrect', (done) => {
+            const invalidCredentials = {
+                email: 'testuser1@example.com',
+                password: 'wrongpassword'
+            };
+
+            chai.request.execute(server)
+                .post('/posts/user/login')
+                .send(invalidCredentials)
+                .end((err, res) => {
+                    res.should.have.status(401);
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('title').eql('Wrong password');
+                    done();
+                });
+        });
+    });
 });
