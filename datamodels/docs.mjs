@@ -1,5 +1,5 @@
 
-import database from './db/database.mjs';
+import database from '../db/database.mjs';
 import { ObjectId } from 'mongodb';
 const docs = {
     getAll: async function getAll(datab) {
@@ -40,7 +40,8 @@ const docs = {
             const result = await db.collection.insertOne({
                 title: body.title,
                 content: body.content,
-                created_at: new Date()
+                created_at: new Date(),
+                allowed: body.users || []
             });
             return result;
         } catch (e) {
@@ -56,9 +57,19 @@ const docs = {
     
         try {
             const objectId = new ObjectId(body.id);
+    
+            // Dynamically create the $set object
+            const updateFields = {
+                title: body.title,
+                content: body.content
+            };
+            if (body.users) {
+                updateFields.allowed = body.users;
+            }
+
             const result = await db.collection.updateOne(
                 { _id: objectId },
-                { $set: { title: body.title, content: body.content } }
+                { $set: updateFields }
             );
             return result;
         } catch (e) {

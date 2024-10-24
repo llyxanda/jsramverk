@@ -1,6 +1,7 @@
 import express from "express";
-import sendInvitationEmail from '../sendmail.mjs';
-import documents from "../docs.mjs";
+import sendInvitationEmail from '../datamodels/sendmail.mjs';
+import documents from "../datamodels/docs.mjs";
+import auth from '../datamodels/auth.mjs';
 
 const router = express.Router();
 
@@ -94,6 +95,41 @@ router.post('/mail/send-invite', async (req, res) => {
         console.error('Error sending email:', error);
         return res.status(500).json({ error: error.message }); // Return error message
     }
+});
+
+router.post('/user/register', async (req, res) => {
+    try {
+        await auth.register(res, req.body);
+    } catch (error) {
+        return res.status(500).json({
+            errors: {
+                status: 500,
+                source: "/register",
+                title: "Internal server error",
+                detail: error.message
+            }
+        });
+    }
+});
+
+
+router.post('/user/login', async (req, res) => {
+    try {
+        await auth.login(res, req.body);
+    } catch (error) {
+        return res.status(500).json({
+            errors: {
+                status: 500,
+                source: "/login",
+                title: "Internal server error",
+                detail: error.message
+            }
+        });
+    }
+});
+
+router.get('/users/all', async (req, res) => {
+    await auth.getAllUsers(res);
 });
 
 export default router;
