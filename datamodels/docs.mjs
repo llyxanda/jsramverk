@@ -34,15 +34,15 @@ const docs = {
 
     addOne: async function addOne(datab, body) {
         let db = await database.getDb(datab);
-    
+        console.log('body',body)
         try {
             const result = await db.collection.insertOne({
                 title: body.title,
                 content: body.content,
                 created_at: new Date(),
-                allowed:  [body.allowed] || []
+                allowed: Array.isArray(body.allowed) ? body.allowed : [],
             });
-            return result;
+            return {_id:result.insertedId};
         } catch (e) {
             console.error(e, e.message);
         } finally {
@@ -76,7 +76,7 @@ const docs = {
                 updateData
               );
             console.log('Update Result:', updateResult);
-            return { updateResult };
+            return { _id: updateResult.modifiedCount };
         } catch (e) {
             console.error(e);
             throw new Error("An error occurred while updating the document.");

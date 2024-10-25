@@ -9,8 +9,8 @@ import cors from 'cors';
 import docs from './datamodels/docs.mjs'
 import {graphqlHTTP} from 'express-graphql';
 import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
-import Mutation from './graphql/mutations.mjs'; 
-import RootQueryType from './graphql/mutations.mjs'; 
+import schemaAuth from './graphql/mutations.mjs'; 
+import schemaDocs from './graphql/docstypes.mjs'; 
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -28,15 +28,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/posts", posts );
 
 
-const schema = new GraphQLSchema({
-    query: RootQueryType,
-    mutation: Mutation, // Add the mutation type here
-});
-
-app.use('/graphql', graphqlHTTP({
-    schema: schema,
+app.use('/graphql/auth', graphqlHTTP({
+    schema: schemaAuth,
     graphiql: visual,
 }));
+
+
+app.use('/graphql/docs', graphqlHTTP({
+    schema: schemaDocs,
+    graphiql: visual,
+}));
+
 
 
 

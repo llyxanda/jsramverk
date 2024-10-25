@@ -1,7 +1,7 @@
 // mutations.mjs
-import { GraphQLObjectType, GraphQLString } from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
 import auth from '../datamodels/auth2.mjs';
-import { RegisterResponseType, LoginResponseType } from './types.mjs';
+import { RegisterResponseType, LoginResponseType, RootQueryType } from './types.mjs';
 
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
@@ -14,7 +14,14 @@ const Mutation = new GraphQLObjectType({
             },
             resolve: async (_, { email, password }) => {
                 const response = await auth.register({ email, password });
-                return response.data || response.errors;
+                if (response.errors) {
+                    return {
+                        message: response.errors.detail,
+                        user: null,
+                    };
+                }
+                
+                return response.data;
             },
         },
         login: {
@@ -33,7 +40,7 @@ const Mutation = new GraphQLObjectType({
                     };
                 }
                 return {
-                    message: "Login failed", // Provide a generic message for failed login
+                    message: response.errors.detail,
                     user: null,
                     token: null,
                 };
@@ -42,4 +49,9 @@ const Mutation = new GraphQLObjectType({
     },
 });
 
-export default Mutation;
+export default new GraphQLSchema({
+    query: RootQueryType,
+    mutation: Mutation,
+});
+
+

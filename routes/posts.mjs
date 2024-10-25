@@ -24,10 +24,10 @@ router.get('/new', (req, res) => {
 });
 
 router.post('/new', async (req, res) => {
-    const { title, content } = req.body;
+    const { title, content, allowed } = req.body;
 
     try {
-        const newDocument = await documents.addOne('documents', { title, content });
+        const newDocument = await documents.addOne('documents', { title, content, allowed });
         return res.json({ success: true, data: newDocument });
     } catch (e) {
         console.error('Error creating document:', e);

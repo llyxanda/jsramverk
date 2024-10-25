@@ -1,6 +1,17 @@
 // types.mjs
 import { GraphQLObjectType, GraphQLString } from 'graphql';
 
+const RootQueryType = new GraphQLObjectType({
+    name: 'RootQuery',
+    fields: {
+        message: {
+            type: GraphQLString,
+            resolve() {
+                return 'Hello, GraphQL!';
+            }
+        }
+    }
+});
 
 const UserType = new GraphQLObjectType({
     name: 'User',
@@ -30,4 +41,4 @@ const LoginResponseType = new GraphQLObjectType({
 
 
 
-export { RegisterResponseType, LoginResponseType, UserType};
+export { RegisterResponseType, LoginResponseType, UserType, RootQueryType};
