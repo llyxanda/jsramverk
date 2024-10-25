@@ -7,10 +7,14 @@ import posts from './routes/posts.mjs'
 import cors from 'cors';
 //import './db/database.mjs'
 import docs from './datamodels/docs.mjs'
-
+import {graphqlHTTP} from 'express-graphql';
+import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
+import Mutation from './graphql/mutations.mjs'; 
+import RootQueryType from './graphql/mutations.mjs'; 
 
 const app = express();
 const port = process.env.PORT || 8080;
+const visual = true;
 
 app.disable('x-powered-by');
 app.set("view engine", "ejs");
@@ -20,10 +24,24 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
 app.use("/posts", posts );
 
 
-app.get("/", (req, res) => {
+const schema = new GraphQLSchema({
+    query: RootQueryType,
+    mutation: Mutation, // Add the mutation type here
+});
+
+app.use('/graphql', graphqlHTTP({
+    schema: schema,
+    graphiql: visual,
+}));
+
+
+
+app.get("/", async (req, res) => {
+    await docs.deleteAll('documents');
     res.render('index', { title: 'API Documentation', routes: [
         { method: 'GET', path: '/', description: 'API Documentation' },
         { method: 'GET', path: '/posts', description: 'Get all documents' },

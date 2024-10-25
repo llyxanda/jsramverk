@@ -27,7 +27,6 @@ const docs = {
         } catch (e) {
             console.error(e);
             return null;
-            return null;
         } finally {
             await db.client.close();
         }
@@ -41,7 +40,7 @@ const docs = {
                 title: body.title,
                 content: body.content,
                 created_at: new Date(),
-                allowed: body.users || []
+                allowed:  [body.allowed] || []
             });
             return result;
         } catch (e) {
@@ -54,30 +53,63 @@ const docs = {
 
     updateOne: async function updateOne(datab, body) {
         let db = await database.getDb(datab);
-    
+
         try {
             const objectId = new ObjectId(body.id);
-    
-            // Dynamically create the $set object
-            const updateFields = {
-                title: body.title,
-                content: body.content
-            };
-            if (body.users) {
-                updateFields.allowed = body.users;
+            const updateFields = {};
+
+            if (body.title) {
+                updateFields.title = body.title;
             }
 
-            const result = await db.collection.updateOne(
+            if (body.content) {
+                updateFields.content = body.content;
+            }
+            const updateData = { $set: updateFields };
+
+            if (Array.isArray(body.allowed) && body.allowed.length > 0) {
+                updateData.$addToSet = { allowed: { $each: body.allowed } };
+              }
+            console.log('allowed',updateData)
+            const updateResult = await db.collection.updateOne(
                 { _id: objectId },
-                { $set: updateFields }
-            );
-            return result;
+                updateData
+              );
+            console.log('Update Result:', updateResult);
+            return { updateResult };
         } catch (e) {
             console.error(e);
+            throw new Error("An error occurred while updating the document.");
+        } finally {
+            await db.client.close();
+        }
+    },
+
+
+    deleteAll: async function deleteAll(datab) {
+        let db = await database.getDb(datab);
+
+        try {
+            // Drop the entire database
+            await db.collection.deleteMany({});
+            console.log(`Data has been deleted.`);
+        } catch (e) {
+            console.error(e);
+            throw new Error("An error occurred while deleting the data.");
+        } finally {
+            await db.client.close();
+        }
+    },
+    getAllForUser: async function getAllForUser(datab, userId) {
+        let db = await database.getDb(datab);
+        try {
+            return await db.collection.find({ allowed: userId }).toArray();
+        } catch (e) {
+            console.error(e, e.message);
+            return [];
         } finally {
             await db.client.close();
         }
     }
-    };
-
+};
 export default docs;

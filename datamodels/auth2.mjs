@@ -1,0 +1,152 @@
+import database from '../db/database.mjs';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+const jwtSecret = "Sara&Alex";
+
+const auth = {
+    register: async function(body) {
+        const { email, password } = body;
+
+        if (!email || !password) {
+            return {
+                errors: {
+                    status: 401,
+                    source: "/register",
+                    title: "Email or password missing",
+                    detail: "Email or password missing in request"
+                }
+            };
+        }
+
+        const hash = await bcrypt.hash(password, 10).catch(err => {
+            return {
+                errors: {
+                    status: 500,
+                    source: "/register",
+                    title: "bcrypt error",
+                    detail: "bcrypt error"
+                }
+            };
+        });
+
+        let db;
+        try {
+            db = await database.getDb('users');
+
+            // Check if a user with the same email already exists
+            const existingUser = await db.collection.findOne({ "email": email });
+            if (existingUser) {
+                return {
+                    errors: {
+                        status: 409,
+                        source: "/register",
+                        title: "Email already registered",
+                        detail: "A user with the provided email already exists."
+                    }
+                };
+            }
+
+            let updateDoc = { email, password: hash };
+            // Insert the new user
+            await db.collection.insertOne(updateDoc);
+
+            return {
+                data: {
+                    message: "User successfully registered."
+                }
+            };
+        } catch (e) {
+            return {
+                errors: {
+                    status: 500,
+                    source: "/register",
+                    title: "Database error",
+                    detail: e.message
+                }
+            };
+        } finally {
+            await db.client.close();
+        }
+    },
+
+    login: async function(body) {
+        const { email, password } = body;
+
+        if (!email || !password) {
+            return {
+                errors: {
+                    status: 401,
+                    source: "/login",
+                    title: "Email or password missing",
+                    detail: "Email or password missing in request"
+                }
+            };
+        }
+
+        let db;
+        try {
+            db = await database.getDb('users');
+            const user = await db.collection.findOne({ email });
+
+            if (!user) {
+                return {
+                    errors: {
+                        status: 401,
+                        source: "/login",
+                        title: "User not found",
+                        detail: "User with provided email not found."
+                    }
+                };
+            }
+
+            const result = await bcrypt.compare(password, user.password).catch(err => {
+                return {
+                    errors: {
+                        status: 500,
+                        source: "/login",
+                        title: "bcrypt error",
+                        detail: "bcrypt error"
+                    }
+                };
+            });
+
+            if (result) {
+                let payload = { email: user.email };
+                let jwtToken = jwt.sign(payload, jwtSecret, { expiresIn: '24h' });
+
+                return {
+                    data: {
+                        message: "User logged in",
+                        user: payload,
+                        token: jwtToken
+                    }
+                };
+            }
+
+            return {
+                errors: {
+                    status: 401,
+                    source: "/login",
+                    title: "Wrong password",
+                    detail: "Password is incorrect."
+                }
+            };
+        } catch (e) {
+            return {
+                errors: {
+                    status: 500,
+                    source: "/login",
+                    title: "Database error",
+                    detail: e.message
+                }
+            };
+        } finally {
+            await db.client.close();
+        }
+    },
+    
+    // Other functions remain unchanged...
+};
+
+export default auth;

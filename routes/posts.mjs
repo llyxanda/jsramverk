@@ -68,10 +68,10 @@ router.get('/update/:id', async (req, res) => {
 router.post('/:id', async (req, res) => {
     console.log('id:', req.params)
     const { id } = req.params;
-    const { title, content } = req.body;
+    const { title, content, allowed } = req.body;
 
     try {
-        const doc = await documents.updateOne('documents', { id: id, title, content });
+        const doc = await documents.updateOne('documents', { id: id, title, content, allowed });
         return res.json(doc);
     } catch (e) {
         console.error('Error updating document:', e);
@@ -130,6 +130,19 @@ router.post('/user/login', async (req, res) => {
 
 router.get('/users/all', async (req, res) => {
     await auth.getAllUsers(res);
+});
+
+
+router.get('/documents/allowed/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const datab = 'documents';
+    try {
+        const userDocuments = await documents.getAllForUser(datab, userId);
+        res.json(userDocuments);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'An error occurred while fetching documents.' });
+    }
 });
 
 export default router;

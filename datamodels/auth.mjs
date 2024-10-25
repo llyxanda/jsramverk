@@ -38,7 +38,6 @@ const auth = {
                 db = await database.getDb('users');
                 //await db.collection.deleteMany({});
                 // Check if a user with the same email already exists
-                console.log(db.collection)
                 const existingUser = await db.collection.findOne({ "email": email });
 
                 if (existingUser) {
