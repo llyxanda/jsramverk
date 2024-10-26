@@ -112,7 +112,7 @@ const auth = {
             });
 
             if (result) {
-                let payload = { email: user.email };
+                let payload = { user: user.email };
                 let jwtToken = jwt.sign(payload, jwtSecret, { expiresIn: '24h' });
 
                 return {
@@ -145,8 +145,48 @@ const auth = {
             await db.client.close();
         }
     },
-    
-    // Other functions remain unchanged...
+    getAllUsers: async function() {
+        let db;
+        try {
+            db = await database.getDb('users');
+            const users = await db.collection.find({}).toArray();
+            return users.map(user => ({
+                email: user.email,
+            }));
+        } catch (e) {
+            return {
+                errors: {
+                    status: 500,
+                    source: "/getAllUsers",
+                    title: "Database error",
+                    detail: e.message
+                }
+            };
+        } finally {
+            await db.client.close();
+        }
+    },
+
+    getdataByEmail: async function(email) {
+        let db;
+        try {
+            db = await database.getDb('users');
+            const user = await db.collection.findOne({ email });
+            return user;
+        } catch (e) {
+            return {
+                errors: {
+                    status: 500,
+                    source: "/getUserByEmail",
+                    title: "Database error",
+                    detail: e.message
+                }
+            };
+        } finally {
+            await db.client.close();
+        }
+    },
+
 };
 
 export default auth;

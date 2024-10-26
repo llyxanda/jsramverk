@@ -1,4 +1,4 @@
-// schema.js
+
 import { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLID } from 'graphql';
 import docs from '../datamodels/docs.mjs';
 
@@ -16,22 +16,25 @@ const DocumentType = new GraphQLObjectType({
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     fields: {
-        getAllDocuments: {
+        documents: {
             type: new GraphQLList(DocumentType),
+            description: 'List of all documents',
             async resolve() {
                 return await docs.getAll('documents');
             },
         },
-        getDocument: {
+        document: {
             type: DocumentType,
             args: { id: { type: GraphQLID } },
+            description: 'Get a document by id',
             async resolve(_, args) {
                 return await docs.getOne('documents', args.id);
             },
         },
-        getAllDocumentsForUser: {
+        userdocuments: {
             type: new GraphQLList(DocumentType),
             args: { email: { type: GraphQLString } },
+            description: 'Get documents for one user',
             async resolve(_, args) {
                 return await docs.getAllForUser('documents', args.email);
             },
@@ -42,13 +45,14 @@ const RootQuery = new GraphQLObjectType({
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
     fields: {
-        addDocument: {
+        adddocument: {
             type: DocumentType,
             args: {
                 title: { type: GraphQLString },
                 content: { type: GraphQLString },
                 allowed: { type: new GraphQLList(GraphQLString) },
             },
+            description: 'Add one document',
             
             async resolve(_, args) {
                 const document = {
@@ -60,7 +64,7 @@ const Mutation = new GraphQLObjectType({
                 return await docs.addOne('documents', document);
             },
         },
-        updateDocument: {
+        updatedocument: {
             type: DocumentType,
             args: {
                 id: { type: GraphQLID },
@@ -68,6 +72,7 @@ const Mutation = new GraphQLObjectType({
                 content: { type: GraphQLString },
                 allowed: { type: new GraphQLList(GraphQLString) },
             },
+            description: 'Update a document',
             async resolve(_, args) {
                 const document = {
                     id: args.id,
@@ -78,8 +83,9 @@ const Mutation = new GraphQLObjectType({
                 return await docs.updateOne('documents', document);
             },
         },
-        deleteAllDocuments: {
+        deletealldocuments: {
             type: GraphQLString,
+            description: 'Delete all documents',
             async resolve() {
                 await docs.deleteAll('documents');
                 return "All documents deleted successfully.";

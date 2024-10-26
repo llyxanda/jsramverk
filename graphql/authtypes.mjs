@@ -1,7 +1,58 @@
-// mutations.mjs
-import { GraphQLObjectType, GraphQLString, GraphQLSchema } from 'graphql';
+
+import { GraphQLObjectType, GraphQLString, GraphQLSchema, GraphQLList } from 'graphql';
 import auth from '../datamodels/auth2.mjs';
-import { RegisterResponseType, LoginResponseType, RootQueryType } from './types.mjs';
+
+
+const UserType = new GraphQLObjectType({
+    name: 'User',
+    fields: {
+        email: { type: GraphQLString },
+    },
+});
+
+const RegisterResponseType = new GraphQLObjectType({
+    name: 'RegisterResponse',
+    fields: {
+        message: { type: GraphQLString },
+        user: { type: UserType },
+    },
+});
+
+
+
+const LoginResponseType = new GraphQLObjectType({
+    name: 'LoginResponse',
+    fields: {
+        message: { type: GraphQLString },
+        user: { type: UserType },
+        token: { type: GraphQLString },
+    },
+});
+
+const RootQueryType = new GraphQLObjectType({
+    name: 'RootQuery',
+    fields: {
+        usersData: {
+            type: new GraphQLList(UserType),
+            description: 'Fetch user data - email and token',
+            async resolve() {
+                const usersData = await auth.getAllUsers();
+                console.log(usersData)
+                return usersData;
+            },
+        },
+        userData: {
+            type: UserType,
+            description: 'Fetch user data for an user email',
+            args: { email: { type: GraphQLString } },
+            async resolve(_, args) {
+                const userData = await auth.getdataByEmail(args.email);
+                return userData;
+            },
+        },
+    },
+});
+
 
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
@@ -20,7 +71,6 @@ const Mutation = new GraphQLObjectType({
                         user: null,
                     };
                 }
-                
                 return response.data;
             },
         },
@@ -53,5 +103,3 @@ export default new GraphQLSchema({
     query: RootQueryType,
     mutation: Mutation,
 });
-
-
