@@ -1,8 +1,9 @@
 import database from '../db/database.mjs';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import 'dotenv/config';
 
-const jwtSecret = "Sara&Alex";
+const jwtSecret = process.env.jwtSecret;
 
 const auth = {
     register: async function(body) {

@@ -14,7 +14,7 @@ import docs from './datamodels/docs.mjs';
 import schemaAuth from './graphql/authtypes.mjs';
 import schemaDocs from './graphql/docstypes.mjs';
 
-const JWT_SECRET = 'Sara&Alex';
+const JWT_SECRET = process.env.jwtSecret;
 const { expressjwt } = pkg;
 
 const app = express();
@@ -99,7 +99,7 @@ app.use('/graphql/auth', graphqlHTTP({
 }));
 app.use('/graphql/docs', graphqlHTTP({
   schema: schemaDocs,
-  graphiql: true,
+  graphiql: false,
 }));
 
 app.get("/", async (req, res) => {
@@ -117,6 +117,9 @@ app.get("/", async (req, res) => {
       { method: 'POST', path: '/posts/mail/send-invite', description: 'POST route send an invitation email' },
       { method: 'POST', path: '/posts/users/register', description: 'POST route to register a new user' },
       { method: 'POST', path: '/posts/users/login', description: 'POST route to log in' },
+      { method: 'POST', path: '/posts/graphql/docs', description: 'Update documents' },
+      { method: 'GET', path: '/posts/graphql/docs', description: 'Get document data' },
+      { method: 'POST', path: '/posts/graphql/auth', description: 'Register and login users' },
     ]
   });
 });
