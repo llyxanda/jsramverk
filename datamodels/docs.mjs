@@ -51,10 +51,11 @@ const docs = {
     },
    
 
-    updateOne: async function updateOne(datab, body) {
+    updateOne: async function updateOne(datab = 'documents', body) {
         let db = await database.getDb(datab);
 
         try {
+            console.log(body)
             const objectId = new ObjectId(body.id);
             const updateFields = {};
 
@@ -70,7 +71,7 @@ const docs = {
             if (Array.isArray(body.allowed) && body.allowed.length > 0) {
                 updateData.$addToSet = { allowed: { $each: body.allowed } };
               }
-            console.log('allowed',updateData)
+            console.log('allowed', updateData)
             const updateResult = await db.collection.updateOne(
                 { _id: objectId },
                 updateData

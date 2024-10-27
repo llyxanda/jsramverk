@@ -97,36 +97,6 @@ router.post('/mail/send-invite', async (req, res) => {
     }
 });
 
-router.post('/user/register', async (req, res) => {
-    try {
-        await auth.register(res, req.body);
-    } catch (error) {
-        return res.status(500).json({
-            errors: {
-                status: 500,
-                source: "/register",
-                title: "Internal server error",
-                detail: error.message
-            }
-        });
-    }
-});
-
-
-router.post('/user/login', async (req, res) => {
-    try {
-        await auth.login(res, req.body);
-    } catch (error) {
-        return res.status(500).json({
-            errors: {
-                status: 500,
-                source: "/login",
-                title: "Internal server error",
-                detail: error.message
-            }
-        });
-    }
-});
 
 router.get('/users/all', async (req, res) => {
     await auth.getAllUsers(res);
