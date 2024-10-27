@@ -34,7 +34,7 @@ const ios = new Server(httpServer, {
 let typingTimeouts = {};
 
 ios.on('connection', (socket) => {
-  console.log('a user connected:', socket.id);
+  console.log('a user connected:', socket);
 
   socket.on('joinDocument', ({ documentId, email }) => {
     socket.join(documentId);
@@ -192,7 +192,7 @@ app.post('/user/login', async (req, res) => {
 });
 
 
-
+app.use("/posts", posts);
 
 
 
