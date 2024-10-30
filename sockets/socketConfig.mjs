@@ -6,7 +6,7 @@ let typingTimeouts = {};
 export const initializeSockets = (httpServer) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: ["http://localhost:3001", "http://localhost:3000", "https://www.student.bth.se/~sahb23/editor/"],
+      origin: ["http://localhost:3000", "http://localhost:3001", "https://www.student.bth.se/~sahb23/editor/", "https://www.student.bth.se"],
       methods: ["GET", "POST"]
     }
   });
