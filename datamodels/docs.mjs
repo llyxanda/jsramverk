@@ -39,6 +39,7 @@ const docs = {
             const result = await db.collection.insertOne({
                 title: body.title,
                 content: body.content,
+                code: body.code || false,
                 created_at: new Date(),
                 allowed: Array.isArray(body.allowed) ? body.allowed : [],
             });
@@ -65,6 +66,10 @@ const docs = {
 
             if (body.content) {
                 updateFields.content = body.content;
+            }
+
+            if (body.code) {
+                updateFields.code = body.code;
             }
             const updateData = { $set: updateFields };
 

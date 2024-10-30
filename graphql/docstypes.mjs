@@ -1,5 +1,5 @@
 
-import { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLID } from 'graphql';
+import { GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLID, GraphQLBoolean } from 'graphql';
 import docs from '../datamodels/docs.mjs';
 
 const DocumentType = new GraphQLObjectType({
@@ -9,6 +9,7 @@ const DocumentType = new GraphQLObjectType({
         title: { type: GraphQLString },
         content: { type: GraphQLString },
         created_at: { type: GraphQLString },
+        code: {type: GraphQLBoolean },
         allowed: { type: new GraphQLList(GraphQLString) },
     },
 });
@@ -51,6 +52,7 @@ const Mutation = new GraphQLObjectType({
             args: {
                 title: { type: GraphQLString },
                 content: { type: GraphQLString },
+                code : {type: GraphQLBoolean },
                 allowed: { type: new GraphQLList(GraphQLString) },
             },
             description: 'Add one document',
@@ -59,6 +61,7 @@ const Mutation = new GraphQLObjectType({
                 const document = {
                     title: args.title,
                     content: args.content,
+                    code : args.code || false,
                     allowed: args.allowed || [],
                 };
                 console.log('Document to add:', document);
@@ -71,6 +74,7 @@ const Mutation = new GraphQLObjectType({
                 id: { type: GraphQLID },
                 title: { type: GraphQLString },
                 content: { type: GraphQLString },
+                code : {type: GraphQLBoolean },
                 allowed: { type: new GraphQLList(GraphQLString) },
             },
             description: 'Update a document',
@@ -79,6 +83,7 @@ const Mutation = new GraphQLObjectType({
                     id: args.id,
                     title: args.title,
                     content: args.content,
+                    code : args.code,
                     allowed: args.allowed,
                 };
                 return await docs.updateOne('documents', document);
