@@ -8,12 +8,9 @@ import { graphqlHTTP } from 'express-graphql';
 import { createHandler } from 'graphql-http/lib/use/express';
 import { buildSchema } from 'graphql';
 import posts from './routes/posts.mjs';
-//import docs from './datamodels/docs.mjs';
-//import auth from './datamodels/auth.mjs';
 import schemaAuth from './graphql/authtypes.mjs';
 import schemaDocs from './graphql/docstypes.mjs';
 import http from "http";
-import { Server } from "socket.io";
 import {loggingMiddleware, authMiddleware, attachUserMiddleware} from "./middlewares/authMiddleware.mjs"
 import { initializeSockets } from './sockets/socketConfig.mjs';
 
@@ -21,63 +18,6 @@ import { initializeSockets } from './sockets/socketConfig.mjs';
 const app = express();
 const port = process.env.PORT || 8080;
 const httpServer = http.createServer(app);
-
-//const ios = new Server(httpServer, {
-//  cors: {
-/*    origin: ["http://localhost:3001", "http://localhost:3000", "https://www.student.bth.se/~sahb23/editor/"], // Add more origins here
-    methods: ["GET", "POST"]
-  }
-});
-
-let typingTimeouts = {};
-
-ios.on('connection', (socket) => {
-  console.log('a user connected:', socket.id);
-
-  socket.on('joinDocument', ({ documentId, email }) => {
-    socket.join(documentId);
-    console.log(`User ${socket.id} (Email: ${email}) joined document ${documentId}`);
-  });
-
-  socket.on('typingContent', ({ documentId, content, email }) => {
-    console.log(`User ${email} is typing in document ${documentId}: ${content ? content : ''}`);
-    socket.to(documentId).emit('receiveTypingContent', content);
-
-    if (typingTimeouts[documentId]) clearTimeout(typingTimeouts[documentId]);
-
-    typingTimeouts[documentId] = setTimeout(async () => {
-      try {
-        const documentData = { id: documentId, content: content };
-        const response = await docs.updateOne('documents', documentData);
-        console.log(`Document ${documentId} saved with content: ${content} response:`, response);
-      } catch (error) {
-        console.error(`Error saving document ${documentId}:`, error);
-      }
-    }, 3000);
-  });
-
-  socket.on('typingTitle', ({ documentId, title, email }) => {
-    console.log(`User ${email} is typing in document ${documentId}: ${title ? title : ''}`);
-    socket.to(documentId).emit('receiveTypingTitle', title);
-        
-    if (typingTimeouts[documentId]) clearTimeout(typingTimeouts[documentId]);
-
-    typingTimeouts[documentId] = setTimeout(async () => {
-      try {
-        const documentData = { id: documentId, title: title };
-        const response = await docs.updateOne('documents', documentData);
-        console.log(`Document ${documentId} saved with title: ${title} response:`, response);
-      } catch (error) {
-        console.error(`Error saving document ${documentId}:`, error);
-      }
-    }, 3000);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('user disconnected:', socket.id);
-  });
-});
-*/
 
 initializeSockets(httpServer); 
 app.use(express.static(path.join(process.cwd(), "public")));
