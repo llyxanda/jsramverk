@@ -8,12 +8,9 @@ import { graphqlHTTP } from 'express-graphql';
 import { createHandler } from 'graphql-http/lib/use/express';
 import { buildSchema } from 'graphql';
 import posts from './routes/posts.mjs';
-//import docs from './datamodels/docs.mjs';
-//import auth from './datamodels/auth.mjs';
 import schemaAuth from './graphql/authtypes.mjs';
 import schemaDocs from './graphql/docstypes.mjs';
 import http from "http";
-import { Server } from "socket.io";
 import {loggingMiddleware, authMiddleware, attachUserMiddleware} from "./middlewares/authMiddleware.mjs"
 import { initializeSockets } from './sockets/socketConfig.mjs';
 

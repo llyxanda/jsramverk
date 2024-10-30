@@ -85,10 +85,11 @@ describe('app', () => {
                 .post('/posts/new')
                 .send(newDocument)
                 .end(async (err, res) => {
+                    //console.log('response here ',res)
                     res.should.have.status(200);
                     res.body.should.have.property('success').eql(true);
                     res.body.should.have.property('data');
-                    const addedDocument = await documents.getOne('documents', res.body.data.insertedId);
+                    const addedDocument = await documents.getOne('documents', res.body.data._id);
                     addedDocument.should.include(newDocument);
                     done();
                 });
@@ -116,7 +117,7 @@ describe('app', () => {
                     res.body.should.have.property('data');
             
                     // Store the ID of the newly added document for the GET test
-                    newDocumentId = res.body.data.insertedId;
+                    newDocumentId = res.body.data._id;
                     console.log('document id1', newDocumentId, res.body);
                 });
             
@@ -147,7 +148,7 @@ describe('app', () => {
         
                     try {
                         const insertedDocument = await documents.addOne('documents', newDocument);
-                        newDocumentId = insertedDocument.insertedId;
+                        newDocumentId = insertedDocument._id;
                         console.log(`Inserted document with ID: ${newDocumentId}`);
                     } catch (err) {
                         console.error('Error inserting document:', err);

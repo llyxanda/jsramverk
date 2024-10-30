@@ -82,7 +82,6 @@ const Mutation = new GraphQLObjectType({
             },
             resolve: async (_, { email, password }) => {
                 const response = await auth.login({ email, password });
-                console.log('hereeee user', response.data.user.user)
                 if (response.data.user.user) {
                     return {
                         message: response.data.message,

@@ -54,7 +54,8 @@ const auth = {
 
             return {
                 data: {
-                    message: "User successfully registered."
+                    message: "User successfully registered.",
+                    user:{email: email}
                 }
             };
         } catch (e) {
