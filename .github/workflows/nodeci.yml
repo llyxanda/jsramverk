@@ -1,0 +1,59 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  PORT: 8585
+  NODE_ENV: "test"
+  DB_PASS: ${{ secrets.DB_PASS }}
+  setgrid_Api: ${{ secrets.setgrid_Api }}
+  jwtSecret: ${{ secrets.jwtSecret }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+        mongodb-version: ['6.0','8.0.0']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Start MongoDB
+      uses: supercharge/mongodb-github-action@1.7.0
+      with:
+        mongodb-version: ${{ matrix.mongodb-version }}
+
+    - name: Clear npm cache
+      run: npm cache clean --force
+
+
+      
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Check for Mocha and Chai
+      run: |
+        npm list mocha
+        npm list chai
+
+    - name: Install Mocha globally
+      run: npm install -g mocha
+    
+    - name: List installed packages
+      run: npm list
+    - run: npm test
+
+
