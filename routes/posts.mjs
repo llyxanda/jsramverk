@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
         const docs = await documents.getAll('documents');
         //return res.render("index", { docs });
         console.log(docs)
-        return res.json({data: docs})
+        return res.json({ data: docs })
     } catch (e) {
         console.error('Error fetching documents:', e);
         res.status(500).send('Error fetching documents');
@@ -114,5 +114,38 @@ router.get('/documents/allowed/:userId', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while fetching documents.' });
     }
 });
+
+
+router.post('/user/register', async (req, res) => {
+    try {
+        await auth.register(res, req.body);
+    } catch (error) {
+        return res.status(500).json({
+            errors: {
+                status: 500,
+                source: "/register",
+                title: "Internal server error",
+                detail: error.message
+            }
+        });
+    }
+});
+
+
+router.post('/user/login', async (req, res) => {
+    try {
+        await auth.login(res, req.body);
+    } catch (error) {
+        return res.status(500).json({
+            errors: {
+                status: 500,
+                source: "/login",
+                title: "Internal server error",
+                detail: error.message
+            }
+        });
+    }
+});
+
 
 export default router;

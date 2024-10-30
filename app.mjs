@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import express from 'express';
-import jwt from 'jsonwebtoken';
 import bodyParser from 'body-parser';
 import path from 'path';
 import morgan from 'morgan';
@@ -8,25 +7,24 @@ import cors from 'cors';
 import { graphqlHTTP } from 'express-graphql';
 import { createHandler } from 'graphql-http/lib/use/express';
 import { buildSchema } from 'graphql';
-import pkg from 'express-jwt';
 import posts from './routes/posts.mjs';
-import docs from './datamodels/docs.mjs';
-import auth from './datamodels/auth.mjs';
+//import docs from './datamodels/docs.mjs';
+//import auth from './datamodels/auth.mjs';
 import schemaAuth from './graphql/authtypes.mjs';
 import schemaDocs from './graphql/docstypes.mjs';
 import http from "http";
 import { Server } from "socket.io";
+import {loggingMiddleware, authMiddleware, attachUserMiddleware} from "./middlewares/authMiddleware.mjs"
+import { initializeSockets } from './sockets/socketConfig.mjs';
 
 
-const JWT_SECRET = process.env.jwtSecret;
-const { expressjwt } = pkg;
 const app = express();
 const port = process.env.PORT || 8080;
 const httpServer = http.createServer(app);
 
-const ios = new Server(httpServer, {
-  cors: {
-    origin: ["http://localhost:3001", "http://localhost:3000", "https://www.student.bth.se/~sahb23/editor/"], // Add more origins here
+//const ios = new Server(httpServer, {
+//  cors: {
+/*    origin: ["http://localhost:3001", "http://localhost:3000", "https://www.student.bth.se/~sahb23/editor/"], // Add more origins here
     methods: ["GET", "POST"]
   }
 });
@@ -34,7 +32,7 @@ const ios = new Server(httpServer, {
 let typingTimeouts = {};
 
 ios.on('connection', (socket) => {
-  console.log('a user connected:', socket);
+  console.log('a user connected:', socket.id);
 
   socket.on('joinDocument', ({ documentId, email }) => {
     socket.join(documentId);
@@ -79,7 +77,9 @@ ios.on('connection', (socket) => {
     console.log('user disconnected:', socket.id);
   });
 });
+*/
 
+initializeSockets(httpServer); 
 app.use(express.static(path.join(process.cwd(), "public")));
 app.use(cors());
 app.use(bodyParser.json());
@@ -118,88 +118,17 @@ const schemaAuthmiddleware = buildSchema(`
   }
 `);
 
-function loggingMiddleware(req, res, next) {
-  console.log("Client IP:", req.ip);
-  next();
-}
-
-// JWT authentication middleware
-const authMiddleware = expressjwt({
-  secret: JWT_SECRET,
-  algorithms: ['HS256'],
-  credentialsRequired: true, // Ensure credentials are required
-  getToken: (req) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    console.log('Extracted Token:', token);
-    return token;
-  }
-}).unless({
-    path: [
-      { url: '/graphql/auth', methods: ['POST'] }
-    ]
-  });
-
-const attachUserMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (token) {
-    jwt.verify(token, JWT_SECRET, (err, decoded) => {
-      if (err) {
-        console.log('JWT verification error:', err);
-      } else {
-        req.user = decoded;
-        console.log('Decoded User:', req.user, req.ip);
-      }
-    });
-  }
-  next();
-};
-
 const root = {
   ip: (args, context) => context.ip,
   userData: (args, context) => context.user ? `Authenticated user email: ${context.user.email}` : "No authenticated user"
 };
 
 
-app.post('/user/register', async (req, res) => {
-  try {
-      await auth.register(res, req.body);
-  } catch (error) {
-      return res.status(500).json({
-          errors: {
-              status: 500,
-              source: "/register",
-              title: "Internal server error",
-              detail: error.message
-          }
-      });
-  }
-});
-
-
-app.post('/user/login', async (req, res) => {
-  try {
-      await auth.login(res, req.body);
-  } catch (error) {
-      return res.status(500).json({
-          errors: {
-              status: 500,
-              source: "/login",
-              title: "Internal server error",
-              detail: error.message
-          }
-      });
-  }
-});
-
 
 app.use("/posts", posts);
-
-
-
 app.use(loggingMiddleware);
 app.use(authMiddleware);
 app.use(attachUserMiddleware);
-
 
 
 app.all("/graphql", createHandler({
@@ -231,7 +160,5 @@ if (process.env.NODE_ENV !== 'test') {
 const server = httpServer.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });
-
-
 
 export default server;

@@ -20,6 +20,7 @@ const RootQuery = new GraphQLObjectType({
             type: new GraphQLList(DocumentType),
             description: 'List of all documents',
             async resolve() {
+                console.log( await docs.getAll('documents'))
                 return await docs.getAll('documents');
             },
         },
