@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
-const jwtSecret = process.env.jwtSecret;
+const jwtSecret = process.env.JWTSECRET;
 
 const auth = {
     register: async function(body) {

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import  sgMail from '@sendgrid/mail';
 
-sgMail.setApiKey(process.env.setgrid_Api);
+sgMail.setApiKey(process.env.SETGRID_API);
 
 const sendInvitationEmail = async (email, documentUrl, sender="") => {
     const msg = {

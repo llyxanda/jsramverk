@@ -3,7 +3,7 @@ import pkg from 'express-jwt';
 import 'dotenv/config';
 
 const { expressjwt } = pkg;
-const JWT_SECRET = process.env.jwtSecret;
+const JWT_SECRET = process.env.JWTSECRET;
 
 const authMiddleware = expressjwt({
   secret: JWT_SECRET,
