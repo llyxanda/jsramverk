@@ -60,3 +60,9 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3CB5C450A3DE42099C6BD68E40320DE3 }}
+    env:
+      PORT: 8585
+      NODE_ENV: "test"
+      DB_PASS: ${{ secrets.DB_PASS }}
+      setgrid_Api: ${{ secrets.setgrid_Api }}
+      jwtSecret: ${{ secrets.JWTSECRET  }}
