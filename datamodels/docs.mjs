@@ -68,7 +68,7 @@ const docs = {
                 updateFields.content = body.content;
             }
 
-            if (body.code) {
+            if (typeof body.code === 'boolean') {
                 updateFields.code = body.code;
             }
             const updateData = { $set: updateFields };
