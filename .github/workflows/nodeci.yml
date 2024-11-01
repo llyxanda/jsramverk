@@ -10,8 +10,8 @@ env:
   PORT: 8585
   NODE_ENV: "test"
   DB_PASS: ${{ secrets.DB_PASS }}
-  setgrid_Api: ${{ secrets.setgrid_Api }}
-  jwtSecret: ${{ secrets.jwtSecret }}
+  SETGRID_API: ${{ secrets.setgrid_Api }}
+  JWTSECRET: ${{ secrets.jwtSecret }}
 
 jobs:
   build:
