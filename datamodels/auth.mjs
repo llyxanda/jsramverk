@@ -6,7 +6,7 @@ import 'dotenv/config';
 const jwtSecret = process.env.JWTSECRET;
 const auth = {
     register: async function(res, body) {
-        const email = body.email;
+        const email = body.email.toLowerCase();
         const password = body.password;
     
         if (!email || !password) {

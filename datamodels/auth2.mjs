@@ -36,7 +36,7 @@ const auth = {
             db = await database.getDb('users');
 
             // Check if a user with the same email already exists
-            const existingUser = await db.collection.findOne({ "email": email });
+            const existingUser = await db.collection.findOne({ "email": email.toLowerCase() });
             if (existingUser) {
                 return {
                     errors: {
@@ -48,7 +48,8 @@ const auth = {
                 };
             }
 
-            let updateDoc = { email, password: hash };
+            let updateDoc = { email: email.toLowerCase(), password: hash };
+
             // Insert the new user
             await db.collection.insertOne(updateDoc);
 
@@ -89,7 +90,8 @@ const auth = {
         let db;
         try {
             db = await database.getDb('users');
-            const user = await db.collection.findOne({ email });
+            const user = await db.collection.findOne({ email: email.toLowerCase() });
+
 
             if (!user) {
                 return {
